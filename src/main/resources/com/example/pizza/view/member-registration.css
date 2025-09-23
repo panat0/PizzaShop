@@ -1,0 +1,171 @@
+/* member-registration.css */
+
+/* Root styles */
+.root {
+    -fx-background-color: #f8f9fa;
+    -fx-font-family: "Segoe UI", "Tahoma", "Arial", sans-serif;
+}
+
+/* Header section */
+.header-section {
+    -fx-background-color: linear-gradient(to bottom, #2c3e50, #34495e);
+}
+
+.title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #bdc3c7;
+    -fx-padding: 5 0 0 0;
+}
+
+/* Form section */
+.form-section {
+    -fx-background-color: white;
+}
+
+/* Field Labels */
+.field-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+    -fx-text-fill: #34495e;
+    -fx-padding: 0 0 5 0;
+}
+
+/* Text Fields */
+.text-field {
+    -fx-font-size: 14px;
+    -fx-padding: 10px;
+    -fx-border-color: #bdc3c7;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-background-color: white;
+    -fx-min-height: 35px;
+}
+
+.text-field:focused {
+    -fx-border-color: #3498db;
+    -fx-effect: dropshadow(gaussian, rgba(52, 152, 219, 0.3), 5, 0, 0, 0);
+}
+
+.disabled-field {
+    -fx-background-color: #ecf0f1 !important;
+    -fx-text-fill: #7f8c8d !important;
+    -fx-border-color: #d5dbdb !important;
+}
+
+/* Date Pickers */
+.date-picker {
+    -fx-font-size: 14px;
+    -fx-min-height: 35px;
+}
+
+.date-picker .text-field {
+    -fx-border-color: #bdc3c7;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+}
+
+.date-picker:focused .text-field {
+    -fx-border-color: #3498db;
+}
+
+.date-picker .arrow-button {
+    -fx-background-color: #ecf0f1;
+    -fx-background-radius: 0 4px 4px 0;
+}
+
+.date-picker .arrow-button:hover {
+    -fx-background-color: #d5dbdb;
+}
+
+/* Error Label */
+.error-label {
+    -fx-text-fill: #e74c3c;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-color: #fdf2f2;
+    -fx-border-color: #f5c6c6;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-padding: 8 12;
+}
+
+/* Button section */
+.button-section {
+    -fx-background-color: #ecf0f1;
+    -fx-border-color: #bdc3c7;
+    -fx-border-width: 1 0 0 0;
+}
+
+/* Button styles */
+.button {
+    -fx-font-size: 14px;
+    -fx-padding: 10 20;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-cursor: hand;
+}
+
+.submit-button {
+    -fx-background-color: linear-gradient(to bottom, #27ae60, #229954);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-border-color: transparent;
+    -fx-min-width: 120px;
+}
+
+.submit-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #229954, #1e8449);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);
+}
+
+.submit-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #1e8449, #196f3d);
+}
+
+.cancel-button {
+    -fx-background-color: linear-gradient(to bottom, #95a5a6, #7f8c8d);
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+    -fx-min-width: 100px;
+}
+
+.cancel-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #7f8c8d, #6c7b7d);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);
+}
+
+.cancel-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #6c7b7d, #5d6d6e);
+}
+
+/* Separator styles */
+.separator .line {
+    -fx-border-color: #bdc3c7;
+}
+
+/* Spacing for form fields */
+.field {
+    -fx-spacing: 5;
+    -fx-padding: 0 0 15 0;
+}
+
+/* Group spacing */
+.group {
+    -fx-spacing: 10;
+}
+
+/* Responsive adjustments */
+.root {
+    -fx-min-width: 500px;
+    -fx-pref-width: 600px;
+    -fx-min-height: 550px;
+}
