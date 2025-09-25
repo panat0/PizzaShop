@@ -74,7 +74,7 @@ public class Order {
             }
 
             // Wednesday free pizza if sum order > 1000
-            if (LocalDateTime.now().getDayOfWeek().getValue() == 3 && totalPrice >= 1000 ) { // Wednesday
+            if (LocalDateTime.now().getDayOfWeek().getValue() == 4 && totalPrice >= 1000 ) { // Wednesday
                 // Find cheapest pizza and make it free
                 double cheapestPizza = orderItems.stream()
                         .filter(item -> item.getItem().getName().equalsIgnoreCase("พิซซ่าเรดฮาวายเอี้ยน"))
@@ -186,4 +186,12 @@ public class Order {
             }
         }
     }
+
+    public double getOriginalTotalPrice() {
+        return orderItems.stream()
+                .mapToDouble(item -> item.getItem().getPrice() * item.getQuantity())
+                .sum();
+    }
+
+
 }

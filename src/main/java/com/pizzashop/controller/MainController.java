@@ -44,8 +44,8 @@ public class MainController implements Initializable {
     @FXML private TableColumn<OrderItem, String> cartItemColumn;
     @FXML private TableColumn<OrderItem, Integer> cartQuantityColumn;
     @FXML private TableColumn<OrderItem, Double> cartPriceColumn;
-    //search member
-    @FXML private ComboBox<Member> memberComboBox;
+
+    // Member search components
     @FXML private TextField PhoneTextField;
     @FXML private Button checkMemberButton;
     @FXML private Text memberInfoLabel;
@@ -68,6 +68,7 @@ public class MainController implements Initializable {
     private ObservableList<Item> allItems;
     private ObservableList<Item> filteredItems;
     private Order currentOrder;
+    private Member currentMember; // เก็บสมาชิกปัจจุบัน
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -141,9 +142,8 @@ public class MainController implements Initializable {
         // Search field
         searchField.textProperty().addListener((obs, oldVal, newVal) -> filterItems());
 
-        // Member combo box
-        loadMembers();
-        memberComboBox.setOnAction(e -> updateOrderMember());
+        // Phone search setup
+        setupPhoneSearch();
 
         // Dine in checkbox
         dineInCheckBox.setOnAction(e -> updateOrderDineIn());
@@ -163,6 +163,102 @@ public class MainController implements Initializable {
         updateButtonStates();
     }
 
+
+     //ตั้งค่าระบบค้นหาสมาชิกด้วยเบอร์โทร
+    private void setupPhoneSearch() {
+        memberInfoLabel.setText("");
+        PhoneTextField.setOnAction(e -> searchMemberByPhone());
+        checkMemberButton.setOnAction(e -> searchMemberByPhone());
+        PhoneTextField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (!oldVal.equals(newVal)) {
+                resetMemberInfo();
+            }
+        });
+    }
+
+    // ค้นหาสมาชิกด้วยเบอร์โทร
+    @FXML
+    private void searchMemberByPhone() {
+        String phoneNumber = PhoneTextField.getText().trim();
+
+        if (phoneNumber.isEmpty()) {
+            showAlert("กรุณาใส่เบอร์โทรศัพท์", "ไม่ได้ใส่เบอร์โทร");
+            return;
+        }
+
+        // ค้นหาสมาชิกจาก DataManager (คืนค่าเป็น Optional<Member>)
+        Optional<Member> memberOptional = dataManager.findMemberByPhone(phoneNumber);
+
+        if (memberOptional.isPresent()) {
+            Member foundMember = memberOptional.get();
+
+            // ตรวจสอบว่าสมาชิกยังใช้งานได้หรือไม่
+            if (!foundMember.isActive()) {
+                memberInfoLabel.setText("❌ สมาชิกนี้ถูกยกเลิกแล้ว");
+                memberInfoLabel.setStyle("-fx-fill: red;");
+                currentMember = null;
+                currentOrder.setMember(null);
+            } else if (foundMember.isExpired()) {
+                memberInfoLabel.setText("⚠️ สมาชิกนี้หมดอายุแล้ว (" + foundMember.getName() + ")");
+                memberInfoLabel.setStyle("-fx-fill: orange;");
+                currentMember = null;
+                currentOrder.setMember(null);
+            } else {
+                // สมาชิกใช้งานได้ปกติ
+                currentMember = foundMember;
+                currentOrder.setMember(foundMember);
+                displayMemberInfo(foundMember);
+            }
+        } else {
+            // ไม่พบสมาชิก
+            memberInfoLabel.setText("❌ ไม่พบสมาชิกที่ใช้เบอร์ " + phoneNumber);
+            memberInfoLabel.setStyle("-fx-fill: red;");
+            currentMember = null;
+            currentOrder.setMember(null);
+        }
+
+        updateOrderSummary();
+    }
+
+    /**
+     * แสดงข้อมูลสมาชิก
+     */
+    private void displayMemberInfo(Member member) {
+        StringBuilder info = new StringBuilder();
+        info.append("✅ สมาชิก: ").append(member.getName());
+
+        if (member.isBirthday()) {
+            info.append("\n🎂 วันเกิดวันนี้! ได้รับส่วนลดพิเศษ 15%");
+            memberInfoLabel.setStyle("-fx-fill: #ff6b35;");
+        } else {
+            memberInfoLabel.setStyle("-fx-fill: green;");
+        }
+
+        memberInfoLabel.setText(info.toString());
+    }
+
+    /**
+     * รีเซ็ตข้อมูลสมาชิก
+     */
+    private void resetMemberInfo() {
+        if (currentMember != null) {
+            currentMember = null;
+            currentOrder.setMember(null);
+            memberInfoLabel.setText("กรุณาใส่เบอร์โทรเพื่อค้นหาสมาชิก");
+            memberInfoLabel.setStyle("-fx-fill: black;");
+            updateOrderSummary();
+        }
+    }
+
+    /**
+     * ล้างข้อมูลการค้นหาสมาชิก
+     */
+    @FXML
+    private void clearMemberSearch() {
+        PhoneTextField.clear();
+        resetMemberInfo();
+    }
+
     /**
      * โหลดข้อมูลทั้งหมด
      */
@@ -170,30 +266,6 @@ public class MainController implements Initializable {
         allItems = FXCollections.observableArrayList(dataManager.getAllItems());
         filteredItems = FXCollections.observableArrayList(allItems);
         itemTableView.setItems(filteredItems);
-    }
-
-    /**
-     * โหลดสมาชิก
-     */
-    private void loadMembers() {
-        memberComboBox.getItems().clear();
-        memberComboBox.getItems().add(null); // ไม่เป็นสมาชิก
-        memberComboBox.getItems().addAll(dataManager.getActiveMembers());
-
-        // Custom string converter
-        memberComboBox.setConverter(new javafx.util.StringConverter<Member>() {
-            @Override
-            public String toString(Member member) {
-                return member == null ? "ไม่เป็นสมาชิก" : member.toString();
-            }
-
-            @Override
-            public Member fromString(String string) {
-                return null; // ไม่ใช้
-            }
-        });
-
-        memberComboBox.setValue(null);
     }
 
     /**
@@ -310,8 +382,9 @@ public class MainController implements Initializable {
         // บันทึกออเดอร์
         dataManager.saveOrder(currentOrder);
 
-        // สร้างออเดอร์ใหม่
+        // สร้างออเดอร์ใหม่และล้างข้อมูลสมาชิก
         createNewOrder();
+        clearMemberSearch();
         updateButtonStates();
     }
 
@@ -332,22 +405,10 @@ public class MainController implements Initializable {
 
             stage.showAndWait();
 
-            // รีโหลดสมาชิกหลังปิดหน้าต่าง
-            loadMembers();
-
         } catch (IOException e) {
             e.printStackTrace();
             showAlert("ไม่สามารถเปิดหน้าสมัครสมาชิกได้", "ข้อผิดพลาด");
         }
-    }
-
-    /**
-     * อัพเดทสมาชิกในออเดอร์
-     */
-    private void updateOrderMember() {
-        Member selectedMember = memberComboBox.getValue();
-        currentOrder.setMember(selectedMember);
-        updateOrderSummary();
     }
 
     /**
@@ -368,23 +429,27 @@ public class MainController implements Initializable {
         cartTableView.setItems(cartItems);
     }
 
-    /**
-     * อัพเดทสรุปออเดอร์
-     */
-    private void updateOrderSummary() {
-        // ราคารวม
-        totalLabel.setText(String.format("%.2f บาท", currentOrder.getTotalPrice()));
 
-        // ส่วนลด
-        double savings = currentOrder.getTotalSavings();
-        if (savings > 0) {
-            discountLabel.setText(String.format("ประหยัดได้: %.2f บาท", savings));
+    //สรุปออเดอร์
+    private void updateOrderSummary() {
+        // คำนวณราคาโดยตรงในตัว Controller
+        double originalPrice = calculateOriginalPrice();
+        double finalPrice = calculateFinalPrice();
+        double totalSavings = originalPrice - finalPrice;
+
+        // แสดงราคาสุดท้าย
+        totalLabel.setText(String.format("%.2f บาท", finalPrice));
+
+        // แสดงส่วนลดใน discountLabel (ไม่ใช่ในสรุป)
+        if (totalSavings > 0) {
+            discountLabel.setText(String.format("ประหยัดได้: %.2f บาท", totalSavings));
             discountLabel.setVisible(true);
+            discountLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
         } else {
             discountLabel.setVisible(false);
         }
 
-        // โปรโมชั่น
+        // แสดงโปรโมชั่น
         if (currentOrder.hasFreeWednesdayPizza()) {
             promotionLabel.setText("🍕 ได้พิซซ่าฟรี 1 ถาด! (โปรวันพุธ)");
             promotionLabel.setVisible(true);
@@ -394,6 +459,39 @@ public class MainController implements Initializable {
 
         // สรุปรายละเอียด
         orderSummaryArea.setText(generateOrderPreview());
+
+    }
+
+    /**
+     * คำนวณราคาเต็มก่อนลด
+     */
+    private double calculateOriginalPrice() {
+        if (currentOrder.isEmpty()) return 0.0;
+
+        double total = 0.0;
+        for (OrderItem item : currentOrder.getOrderItems()) {
+            total += item.getItem().getPrice() * item.getQuantity();
+        }
+        return total;
+    }
+
+    /**
+     * คำนวณราคาสุดท้ายหลังลด
+     */
+    private double calculateFinalPrice() {
+        double originalPrice = calculateOriginalPrice();
+
+        // ไม่มีสมาชิกหรือไม่มีสินค้า
+        if (currentOrder.getMember() == null || originalPrice == 0.0) {
+            return originalPrice;
+        }
+
+        // คำนวณส่วนลด
+        Member member = currentOrder.getMember();
+        double discountRate = member.isBirthday() ? 0.15 : 0.10; // 15% วันเกิด, 10% ปกติ
+        double discountAmount = originalPrice * discountRate;
+
+        return originalPrice - discountAmount;
     }
 
     /**
@@ -411,9 +509,11 @@ public class MainController implements Initializable {
         // ข้อมูลสมาชิก
         if (currentOrder.getMember() != null) {
             Member member = currentOrder.getMember();
-            sb.append("สมาชิก: ").append(member.getName()).append("\n");
+            sb.append("สมาชิก: ").append(member.getName()).append(" (").append(member.getMemberId()).append(")\n");
             if (member.isBirthday()) {
                 sb.append("🎂 วันเกิด - ได้ส่วนลดพิเศษ 15%!\n");
+            } else {
+                sb.append("💳 ส่วนลดสมาชิก 10%\n");
             }
         } else {
             sb.append("สมาชิก: ไม่เป็นสมาชิก\n");
@@ -424,13 +524,31 @@ public class MainController implements Initializable {
         if (currentOrder.isEmpty()) {
             sb.append("(ยังไม่มีรายการ)\n");
         } else {
+            double originalTotal = 0;
+            double discountAmount = 0.0;
             for (OrderItem item : currentOrder.getOrderItems()) {
-                sb.append("• ").append(item.toString()).append("\n");
+                double itemTotal = item.getItem().getPrice() * item.getQuantity();
+                originalTotal += itemTotal;
+                sb.append("• ").append(item.getItem().getName())
+                        .append(" x ").append(item.getQuantity())
+                        .append(" = ").append(String.format("%.2f บาท", itemTotal)).append("\n");
             }
 
             if (currentOrder.hasFreeWednesdayPizza()) {
                 sb.append("• พิซซ่าฟรี x 1 (โปรวันพุธ)\n");
             }
+
+            sb.append("\n=== สรุปราคา ===\n");
+            sb.append("ราคาเต็ม: ").append(String.format("%.2f บาท", originalTotal)).append("\n");
+
+            if (currentOrder.getMember() != null) {
+                double discountRate = currentOrder.getMember().isBirthday() ? 0.15 : 0.10;
+                discountAmount = originalTotal * discountRate;
+                sb.append("ส่วนลด (").append((int)(discountRate * 100)).append("%): -")
+                        .append(String.format("%.2f บาท", discountAmount)).append("\n");
+            }
+
+            sb.append("ราคาสุดท้าย: ").append(String.format("%.2f บาท", originalTotal-discountAmount )).append("\n");
         }
 
         return sb.toString();
@@ -477,6 +595,10 @@ public class MainController implements Initializable {
      * รีเฟรชข้อมูลหลังสมัครสมาชิกใหม่
      */
     public void refreshMemberData() {
-        loadMembers();
+        // ไม่จำเป็นต้องโหลด ComboBox แล้ว เพราะใช้ TextField แทน
+        // แต่ถ้าหากมีการเพิ่มสมาชิกใหม่ และกำลังค้นหาอยู่ ควรค้นหาใหม่
+        if (!PhoneTextField.getText().trim().isEmpty()) {
+            searchMemberByPhone();
+        }
     }
 }

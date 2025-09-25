@@ -123,7 +123,6 @@
                                     <HBox alignment="CENTER_LEFT" spacing="10.0">
                                         <children>
                                             <Label text="สมาชิก:" />
-                                            <ComboBox fx:id="memberComboBox" promptText="ไม่เป็นสมาชิก" />
                                             <TextField fx:id="PhoneTextField" prefHeight="26.0" prefWidth="200.0" promptText="ใส่เบอร์สมาชิก" />
                                             <Button fx:id="checkMemberButton" mnemonicParsing="false" text="ตรวจสอบ" />
                                         </children>

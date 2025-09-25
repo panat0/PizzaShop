@@ -36,7 +36,7 @@ public class DataManager {
         items.add(new Item("D002", "Orange Juice", 55.0, "Drink", "Fresh orange juice"));
 
         // Initialize members - แก้ไขการเรียก constructor
-        members.add(new Member("M001", "สมชาย ใจดี", "081-111-1111",
+        members.add(new Member("M001", "ปาณัสม์ บุญเลา", "0996061879",
                 LocalDate.of(1990, 5, 15), LocalDate.of(2025, 12, 31)));
 
     }
@@ -82,7 +82,6 @@ public class DataManager {
                 .orElse(null);
     }
 
-    // Find member by phone - แก้ไขให้ return Optional
     public Optional<Member> findMemberByPhone(String phone) {
         return members.stream()
                 .filter(member -> member.getPhone().equals(phone))
