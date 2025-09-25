@@ -77,10 +77,8 @@ public class MainController implements Initializable {
 
         // สร้าง Order ใหม่ก่อน (ป้องกัน NullPointerException)
         createNewOrder();
-
-        // จากนั้นค่อยตั้งค่าส่วนอื่นๆ
         setupTableViews();
-        setupControls();  // ตอนนี้ currentOrder ไม่เป็น null แล้ว
+        setupControls();
         loadData();
     }
 
@@ -442,7 +440,7 @@ public class MainController implements Initializable {
 
         // แสดงส่วนลดใน discountLabel (ไม่ใช่ในสรุป)
         if (totalSavings > 0) {
-            discountLabel.setText(String.format("ประหยัดได้: %.2f บาท", totalSavings));
+            discountLabel.setText(String.format("ลดราคาทั้งหมด: %.2f บาท", totalSavings));
             discountLabel.setVisible(true);
             discountLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
         } else {
@@ -479,19 +477,7 @@ public class MainController implements Initializable {
      * คำนวณราคาสุดท้ายหลังลด
      */
     private double calculateFinalPrice() {
-        double originalPrice = calculateOriginalPrice();
-
-        // ไม่มีสมาชิกหรือไม่มีสินค้า
-        if (currentOrder.getMember() == null || originalPrice == 0.0) {
-            return originalPrice;
-        }
-
-        // คำนวณส่วนลด
-        Member member = currentOrder.getMember();
-        double discountRate = member.isBirthday() ? 0.15 : 0.10; // 15% วันเกิด, 10% ปกติ
-        double discountAmount = originalPrice * discountRate;
-
-        return originalPrice - discountAmount;
+        return currentOrder.getTotalPrice();
     }
 
     /**
@@ -499,6 +485,7 @@ public class MainController implements Initializable {
      */
     private String generateOrderPreview() {
         StringBuilder sb = new StringBuilder();
+        double finalPrice = calculateFinalPrice();
 
         // ข้อมูลออเดอร์
         sb.append("=== ข้อมูลออเดอร์ ===\n");
@@ -526,29 +513,37 @@ public class MainController implements Initializable {
         } else {
             double originalTotal = 0;
             double discountAmount = 0.0;
+            double freePizza = 128;
             for (OrderItem item : currentOrder.getOrderItems()) {
                 double itemTotal = item.getItem().getPrice() * item.getQuantity();
                 originalTotal += itemTotal;
                 sb.append("• ").append(item.getItem().getName())
                         .append(" x ").append(item.getQuantity())
                         .append(" = ").append(String.format("%.2f บาท", itemTotal)).append("\n");
+
             }
 
-            if (currentOrder.hasFreeWednesdayPizza()) {
-                sb.append("• พิซซ่าฟรี x 1 (โปรวันพุธ)\n");
+            if (currentOrder.hasFreeWednesdayPizza()){
+                originalTotal-=freePizza;
             }
 
             sb.append("\n=== สรุปราคา ===\n");
             sb.append("ราคาเต็ม: ").append(String.format("%.2f บาท", originalTotal)).append("\n");
 
             if (currentOrder.getMember() != null) {
+
                 double discountRate = currentOrder.getMember().isBirthday() ? 0.15 : 0.10;
                 discountAmount = originalTotal * discountRate;
                 sb.append("ส่วนลด (").append((int)(discountRate * 100)).append("%): -")
                         .append(String.format("%.2f บาท", discountAmount)).append("\n");
             }
 
-            sb.append("ราคาสุดท้าย: ").append(String.format("%.2f บาท", originalTotal-discountAmount )).append("\n");
+            if (currentOrder.hasFreeWednesdayPizza()) {
+                sb.append("ส่วนลด พิซซ่าฟรี: -128.00 บาท\n");
+            }
+
+            sb.append("ราคาสุทธิ: ").append(String.format("%.2f บาท", finalPrice )).append("\n");
+
         }
 
         return sb.toString();
@@ -595,8 +590,6 @@ public class MainController implements Initializable {
      * รีเฟรชข้อมูลหลังสมัครสมาชิกใหม่
      */
     public void refreshMemberData() {
-        // ไม่จำเป็นต้องโหลด ComboBox แล้ว เพราะใช้ TextField แทน
-        // แต่ถ้าหากมีการเพิ่มสมาชิกใหม่ และกำลังค้นหาอยู่ ควรค้นหาใหม่
         if (!PhoneTextField.getText().trim().isEmpty()) {
             searchMemberByPhone();
         }

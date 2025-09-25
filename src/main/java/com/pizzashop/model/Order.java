@@ -61,32 +61,67 @@ public class Order {
         totalSavings = 0.0;
         hasFreeWednesdayPizza = false;
 
+        // 1. คำนวณราคาพื้นฐานทั้งหมด
+        double basePrice = 0.0;
         for (OrderItem item : orderItems) {
-            totalPrice += item.getTotal();
+            basePrice += item.getTotal();
         }
 
-        // Apply member discounts
+        // เริ่มต้นด้วยราคาพื้นฐาน
+        totalPrice = basePrice;
+
+        // 2. โปรโมชั่นวันพุธ - พิซซ่าฟรี (ใช้ได้ทั้งสมาชิกและไม่เป็นสมาชิก)
+        double wednesdayDiscount = applyWednesdayPromotion(basePrice);
+        if (wednesdayDiscount > 0) {
+            totalSavings += wednesdayDiscount;
+            totalPrice -= wednesdayDiscount;
+            hasFreeWednesdayPizza = true;
+        }
+
+        // 3. ส่วนลดสมาชิก (คำนวณจากราคาหลังหักโปรโมชั่นแล้ว)
         if (member != null) {
-            // Birthday discount (15%)
-            if (member.isBirthday()) {
-                double birthdayDiscount = totalPrice * 0.15;
-                totalSavings += birthdayDiscount;
+            double memberDiscount = applyMemberDiscount(totalPrice);
+            if (memberDiscount > 0) {
+                totalSavings += memberDiscount;
+                totalPrice -= memberDiscount;
             }
+        }
+    }
 
-            // Wednesday free pizza if sum order > 1000
-            if (LocalDateTime.now().getDayOfWeek().getValue() == 4 && totalPrice >= 1000 ) { // Wednesday
-                // Find cheapest pizza and make it free
-                double cheapestPizza = orderItems.stream()
-                        .filter(item -> item.getItem().getName().equalsIgnoreCase("พิซซ่าเรดฮาวายเอี้ยน"))
-                        .mapToDouble(item -> item.getItem().getPrice())
-                        .min()
-                        .orElse(0.0);
+    /**
+     * ตรวจสอบและใช้โปรโมชั่นวันพุธ
+     * @param currentTotal ราคาปัจจุบัน
+     * @return จำนวนเงินที่ลดได้
+     */
+    private double applyWednesdayPromotion(double currentTotal) {
+        // เช็ควันพุธ (3) และราคาขั้นต่ำ 1000 บาท
+        if (LocalDateTime.now().getDayOfWeek().getValue() != 5 || currentTotal < 1000) {
+            return 0.0;
+        }
 
-                if (cheapestPizza > 0) {
-                    totalSavings += cheapestPizza;
-                    hasFreeWednesdayPizza = true;
-                }
-            }
+        // หาพิซซ่าเรดฮาวายเอี้ยนในออเดอร์
+        return orderItems.stream()
+                .filter(item -> item.getItem().getName().equalsIgnoreCase("พิซซ่าเรดฮาวายเอี้ยน"))
+                .mapToDouble(item -> item.getItem().getPrice())
+                .findFirst() // เอาแค่ตัวแรกที่เจอ (ฟรี 1 ถาดเท่านั้น)
+                .orElse(0.0);
+    }
+
+    /**
+     * คำนวณส่วนลดสมาชิก
+     * @param currentTotal ราคาปัจจุบัน (หลังหักโปรโมชั่นอื่นแล้ว)
+     * @return จำนวนเงินที่ลดได้
+     */
+    private double applyMemberDiscount(double currentTotal) {
+        if (member == null || currentTotal <= 0) {
+            return 0.0;
+        }
+
+        // ตรวจสอบส่วนลดวันเกิดก่อน
+        if (member.isBirthday()) {
+            return currentTotal * 0.15; // 15% วันเกิด
+        } else {
+            return currentTotal * 0.10; // 10% สมาชิกปกติ
         }
     }
 
@@ -145,7 +180,7 @@ public class Order {
     }
 
     public double getTotalPrice() {
-        return totalPrice - totalSavings;
+        return totalPrice;
     }
 
     public void setTotalPrice(double totalPrice) { this.totalPrice = totalPrice; }

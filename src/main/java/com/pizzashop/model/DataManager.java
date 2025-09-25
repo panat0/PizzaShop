@@ -28,7 +28,7 @@ public class DataManager {
 
     private void initializeData() {
         // Initialize items
-        items.add(new Item("P001", "Margherita Pizza", 299.0, "Pizza", "Classic tomato and mozzarella"));
+        items.add(new Item("P001", "Margherita Pizza", 1000.0, "Pizza", "Classic tomato and mozzarella"));
         items.add(new Item("P002", "Pepperoni Pizza", 359.0, "Pizza", "Pepperoni with mozzarella cheese"));
         items.add(new Item("P003", "Hawaiian Pizza", 379.0, "Pizza", "Ham and pineapple"));
         items.add(new Item("P004","พิซซ่าเรดฮาวายเอี้ยน",128.0,"Pizza","nige"));
