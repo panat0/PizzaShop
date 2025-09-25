@@ -67,17 +67,17 @@ public class Order {
 
         // Apply member discounts
         if (member != null) {
-            // Birthday discount (20%)
+            // Birthday discount (15%)
             if (member.isBirthday()) {
-                double birthdayDiscount = totalPrice * 0.2;
+                double birthdayDiscount = totalPrice * 0.15;
                 totalSavings += birthdayDiscount;
             }
 
-            // Wednesday free pizza
-            if (LocalDateTime.now().getDayOfWeek().getValue() == 3) { // Wednesday
+            // Wednesday free pizza if sum order > 1000
+            if (LocalDateTime.now().getDayOfWeek().getValue() == 3 && totalPrice >= 1000 ) { // Wednesday
                 // Find cheapest pizza and make it free
                 double cheapestPizza = orderItems.stream()
-                        .filter(item -> item.getItem().getCategory().equalsIgnoreCase("pizza"))
+                        .filter(item -> item.getItem().getName().equalsIgnoreCase("พิซซ่าเรดฮาวายเอี้ยน"))
                         .mapToDouble(item -> item.getItem().getPrice())
                         .min()
                         .orElse(0.0);

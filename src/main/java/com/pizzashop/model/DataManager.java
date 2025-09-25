@@ -31,16 +31,14 @@ public class DataManager {
         items.add(new Item("P001", "Margherita Pizza", 299.0, "Pizza", "Classic tomato and mozzarella"));
         items.add(new Item("P002", "Pepperoni Pizza", 359.0, "Pizza", "Pepperoni with mozzarella cheese"));
         items.add(new Item("P003", "Hawaiian Pizza", 379.0, "Pizza", "Ham and pineapple"));
+        items.add(new Item("P004","พิซซ่าเรดฮาวายเอี้ยน",128.0,"Pizza","nige"));
         items.add(new Item("D001", "Coke", 45.0, "Drink", "Coca Cola 330ml"));
         items.add(new Item("D002", "Orange Juice", 55.0, "Drink", "Fresh orange juice"));
 
         // Initialize members - แก้ไขการเรียก constructor
         members.add(new Member("M001", "สมชาย ใจดี", "081-111-1111",
                 LocalDate.of(1990, 5, 15), LocalDate.of(2025, 12, 31)));
-        members.add(new Member("M002", "สมหญิง รักดี", "082-222-2222",
-                LocalDate.of(1985, 8, 20), LocalDate.of(2025, 12, 31)));
-        members.add(new Member("M003", "สมศักดิ์ ดีงาม", "083-333-3333",
-                LocalDate.of(1992, 12, 10), LocalDate.of(2025, 12, 31)));
+
     }
 
     // Get methods

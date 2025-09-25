@@ -14,6 +14,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -43,8 +44,11 @@ public class MainController implements Initializable {
     @FXML private TableColumn<OrderItem, String> cartItemColumn;
     @FXML private TableColumn<OrderItem, Integer> cartQuantityColumn;
     @FXML private TableColumn<OrderItem, Double> cartPriceColumn;
-
+    //search member
     @FXML private ComboBox<Member> memberComboBox;
+    @FXML private TextField PhoneTextField;
+    @FXML private Button checkMemberButton;
+    @FXML private Text memberInfoLabel;
     @FXML private CheckBox dineInCheckBox;
 
     @FXML private Label totalLabel;
@@ -127,6 +131,7 @@ public class MainController implements Initializable {
      * ตั้งค่า Controls
      */
     private void setupControls() {
+
         // Category filter
         categoryFilter.getItems().add("ทั้งหมด");
         categoryFilter.getItems().addAll(dataManager.getAllCategories());
