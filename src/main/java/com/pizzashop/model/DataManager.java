@@ -67,6 +67,7 @@ public class DataManager {
                 .collect(Collectors.toList());
     }
 
+
     // Get active members only - แก้ไข method reference
     public List<Member> getActiveMembers() {
         return members.stream()

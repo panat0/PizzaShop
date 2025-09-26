@@ -513,22 +513,28 @@ public class MainController implements Initializable {
         } else {
             double originalTotal = 0;
             double discountAmount = 0.0;
-            double freePizza = 128;
             for (OrderItem item : currentOrder.getOrderItems()) {
                 double itemTotal = item.getItem().getPrice() * item.getQuantity();
                 originalTotal += itemTotal;
                 sb.append("• ").append(item.getItem().getName())
+                        .append(item.getItem().getPrice())
                         .append(" x ").append(item.getQuantity())
                         .append(" = ").append(String.format("%.2f บาท", itemTotal)).append("\n");
 
             }
 
-            if (currentOrder.hasFreeWednesdayPizza()){
-                originalTotal-=freePizza;
+            if (currentOrder.hasFreeWednesdayPizza()) {
+                double freePizzaPrice = currentOrder.getOrderItems().stream()
+                        .filter(item -> item.getItem().getName().equalsIgnoreCase("พิซซ่าเรดฮาวายเอี้ยน"))
+                        .mapToDouble(item -> item.getItem().getPrice())
+                        .findFirst()          // เอาเฉพาะตัวแรกที่เจอ
+                        .orElse(0.0);         // ถ้าไม่เจอให้เป็น 0
+                originalTotal -= freePizzaPrice;
             }
 
+
             sb.append("\n=== สรุปราคา ===\n");
-            sb.append("ราคาเต็ม: ").append(String.format("%.2f บาท", originalTotal)).append("\n");
+            sb.append("ราคารวม : ").append(String.format("%.2f บาท", originalTotal)).append("\n");
 
             if (currentOrder.getMember() != null) {
 
@@ -539,10 +545,15 @@ public class MainController implements Initializable {
             }
 
             if (currentOrder.hasFreeWednesdayPizza()) {
-                sb.append("ส่วนลด พิซซ่าฟรี: -128.00 บาท\n");
+                currentOrder.getOrderItems().stream()
+                        .filter(item -> item.getItem().getName().equalsIgnoreCase("พิซซ่าเรดฮาวายเอี้ยน"))
+                        .forEach(item -> sb.append("ส่วนลดพิซซ่าฟรี : ")
+                                .append(item.getItem().getPrice())
+                                .append(" บาท\n"));
             }
 
-            sb.append("ราคาสุทธิ: ").append(String.format("%.2f บาท", finalPrice )).append("\n");
+
+            sb.append("ราคาสุทธิ : ").append(String.format("%.2f บาท", finalPrice )).append("\n");
 
         }
 

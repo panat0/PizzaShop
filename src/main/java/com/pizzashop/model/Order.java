@@ -88,13 +88,8 @@ public class Order {
         }
     }
 
-    /**
-     * ตรวจสอบและใช้โปรโมชั่นวันพุธ
-     * @param currentTotal ราคาปัจจุบัน
-     * @return จำนวนเงินที่ลดได้
-     */
     private double applyWednesdayPromotion(double currentTotal) {
-        // เช็ควันพุธ (3) และราคาขั้นต่ำ 1000 บาท
+
         if (LocalDateTime.now().getDayOfWeek().getValue() != 5 || currentTotal < 1000) {
             return 0.0;
         }
@@ -103,7 +98,7 @@ public class Order {
         return orderItems.stream()
                 .filter(item -> item.getItem().getName().equalsIgnoreCase("พิซซ่าเรดฮาวายเอี้ยน"))
                 .mapToDouble(item -> item.getItem().getPrice())
-                .findFirst() // เอาแค่ตัวแรกที่เจอ (ฟรี 1 ถาดเท่านั้น)
+                .findFirst()
                 .orElse(0.0);
     }
 
