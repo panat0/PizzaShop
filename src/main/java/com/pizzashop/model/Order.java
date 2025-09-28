@@ -94,7 +94,6 @@ public class Order {
             return 0.0;
         }
 
-        // หาพิซซ่าเรดฮาวายเอี้ยนในออเดอร์
         return orderItems.stream()
                 .filter(item -> item.getItem().getName().equalsIgnoreCase("พิซซ่าเรดฮาวายเอี้ยน"))
                 .mapToDouble(item -> item.getItem().getPrice())
@@ -114,9 +113,9 @@ public class Order {
 
         // ตรวจสอบส่วนลดวันเกิดก่อน
         if (member.isBirthday()) {
-            return currentTotal * 0.15; // 15% วันเกิด
+            return currentTotal * 0.15;
         } else {
-            return currentTotal * 0.10; // 10% สมาชิกปกติ
+            return currentTotal * 0.10;
         }
     }
 
@@ -193,15 +192,12 @@ public class Order {
         return "Order " + orderId + " - ฿" + String.format("%.2f", getTotalPrice());
     }
 
-    // เพิ่ม method นี้ใน Order.java หลังจาก addItem method
-
     // Remove item from order
     public void removeItem(Item item) {
         orderItems.removeIf(orderItem -> orderItem.getItem().getId().equals(item.getId()));
         calculateTotals();
     }
 
-    // หรือถ้าต้องการลบเฉพาะจำนวนที่กำหนด
     public void removeItem(Item item, int quantity) {
         for (OrderItem orderItem : orderItems) {
             if (orderItem.getItem().getId().equals(item.getId())) {

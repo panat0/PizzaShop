@@ -37,7 +37,7 @@ public class DataManager {
 
         // Initialize members - แก้ไขการเรียก constructor
         members.add(new Member("M001", "ปาณัสม์ บุญเลา", "0996061879",
-                LocalDate.of(1990, 5, 15), LocalDate.of(2025, 12, 31)));
+                LocalDate.of(2004, 5, 5), LocalDate.of(2024, 12, 31)));
 
     }
 
@@ -67,11 +67,10 @@ public class DataManager {
                 .collect(Collectors.toList());
     }
 
-
-    // Get active members only - แก้ไข method reference
+    // Get active members
     public List<Member> getActiveMembers() {
         return members.stream()
-                .filter(member -> member.isActive())  // แก้ไขจาก method reference
+                .filter(member -> member.isActive())
                 .collect(Collectors.toList());
     }
 
@@ -89,7 +88,7 @@ public class DataManager {
                 .findFirst();
     }
 
-    // Add new member - แก้ไขให้ return Member
+    // Add new member
     public Member addMember(String name, String phone, LocalDate birthDate, LocalDate joinDate) {
         String memberId = generateMemberId();
         LocalDate expireDate = joinDate.plusYears(1).minusDays(1);
@@ -129,7 +128,7 @@ public class DataManager {
                 .orElse(null);
     }
 
-    // Create new order - แก้ไข method name และ constructor
+    // Create new order
     public Order createOrder(boolean dineIn) {
         String orderId = generateOrderId();
         return new Order(orderId, null, dineIn);  // ใช้ constructor ที่มี parameters
@@ -143,7 +142,6 @@ public class DataManager {
     public boolean removeOrder(String orderId) {
         return orders.removeIf(o -> o.getOrderId().equals(orderId));
     }
-
     public void removeOrder(Order order) {
         orders.remove(order);
     }
@@ -165,7 +163,7 @@ public class DataManager {
                 .collect(Collectors.toList());
     }
 
-    // Get total sales - แก้ไข method reference
+    // Get total sales
     public double getTotalSales() {
         return orders.stream()
                 .mapToDouble(order -> order.getTotalPrice())  // แก้ไขจาก method reference
@@ -183,7 +181,7 @@ public class DataManager {
                 .sum();
     }
 
-    // Get expired members - แก้ไข method reference
+    // Get expired members
     public List<Member> getExpiredMembers() {
         return members.stream()
                 .filter(member -> !member.isActive())  // แก้ไขจาก method reference
@@ -198,22 +196,4 @@ public class DataManager {
                 .orElse(null);
     }
 
-    // Get popular items (top 5)
-    public List<Item> getPopularItems() {
-        Map<String, Integer> itemCount = new HashMap<>();
-
-        for (Order order : orders) {
-            for (OrderItem orderItem : order.getOrderItems()) {
-                String itemId = orderItem.getItem().getId();
-                itemCount.put(itemId, itemCount.getOrDefault(itemId, 0) + orderItem.getQuantity());
-            }
-        }
-
-        return itemCount.entrySet().stream()
-                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                .limit(5)
-                .map(entry -> findItemById(entry.getKey()))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-    }
 }

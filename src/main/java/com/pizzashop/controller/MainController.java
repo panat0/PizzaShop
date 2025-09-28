@@ -21,6 +21,8 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -82,9 +84,7 @@ public class MainController implements Initializable {
         loadData();
     }
 
-    /**
-     * ตั้งค่า TableViews
-     */
+    // ตั้งค่า TableViews
     private void setupTableViews() {
         // Item Table
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -126,9 +126,7 @@ public class MainController implements Initializable {
         });
     }
 
-    /**
-     * ตั้งค่า Controls
-     */
+    // ตั้งค่า Controls
     private void setupControls() {
 
         // Category filter
@@ -162,7 +160,7 @@ public class MainController implements Initializable {
     }
 
 
-     //ตั้งค่าระบบค้นหาสมาชิกด้วยเบอร์โทร
+    // ตั้งค่าระบบค้นหาสมาชิกด้วยเบอร์โทร
     private void setupPhoneSearch() {
         memberInfoLabel.setText("");
         PhoneTextField.setOnAction(e -> searchMemberByPhone());
@@ -218,9 +216,7 @@ public class MainController implements Initializable {
         updateOrderSummary();
     }
 
-    /**
-     * แสดงข้อมูลสมาชิก
-     */
+    // แสดงข้อมูลสมาชิก
     private void displayMemberInfo(Member member) {
         StringBuilder info = new StringBuilder();
         info.append("✅ สมาชิก: ").append(member.getName());
@@ -235,9 +231,7 @@ public class MainController implements Initializable {
         memberInfoLabel.setText(info.toString());
     }
 
-    /**
-     * รีเซ็ตข้อมูลสมาชิก
-     */
+    // รีเซ็ตข้อมูลสมาชิก
     private void resetMemberInfo() {
         if (currentMember != null) {
             currentMember = null;
@@ -248,36 +242,31 @@ public class MainController implements Initializable {
         }
     }
 
-    /**
-     * ล้างข้อมูลการค้นหาสมาชิก
-     */
+    // ล้างข้อมูลการค้นหาสมาชิก
     @FXML
     private void clearMemberSearch() {
         PhoneTextField.clear();
         resetMemberInfo();
     }
 
-    /**
-     * โหลดข้อมูลทั้งหมด
-     */
+     // โหลดข้อมูลทั้งหมด
     private void loadData() {
         allItems = FXCollections.observableArrayList(dataManager.getAllItems());
         filteredItems = FXCollections.observableArrayList(allItems);
         itemTableView.setItems(filteredItems);
     }
 
-    /**
-     * สร้างออเดอร์ใหม่
-     */
+
+     //สร้างออเดอร์ใหม่
     private void createNewOrder() {
         currentOrder = dataManager.createOrder(false);
         updateCartDisplay();
         updateOrderSummary();
     }
 
-    /**
-     * กรองรายการสินค้า
-     */
+
+     //กรองรายการสินค้า
+
     private void filterItems() {
         String selectedCategory = categoryFilter.getValue();
         String searchText = searchField.getText().toLowerCase().trim();
@@ -306,7 +295,6 @@ public class MainController implements Initializable {
             return;
         }
 
-        // ถามจำนวน
         TextInputDialog dialog = new TextInputDialog("1");
         dialog.setTitle("เพิ่มสินค้า");
         dialog.setHeaderText("เพิ่ม: " + selectedItem.getName());
@@ -409,9 +397,8 @@ public class MainController implements Initializable {
         }
     }
 
-    /**
-     * อัพเดทประเภทการสั่ง
-     */
+
+     //อัพเดทประเภทการสั่ง
     private void updateOrderDineIn() {
         currentOrder.setDineIn(dineInCheckBox.isSelected());
         updateOrderSummary();
@@ -419,9 +406,8 @@ public class MainController implements Initializable {
 
     // === UI Update Methods ===
 
-    /**
-     * อัพเดทการแสดงผลตะกร้า
-     */
+
+    //อัพเดทการแสดงผลตะกร้า
     private void updateCartDisplay() {
         ObservableList<OrderItem> cartItems = FXCollections.observableArrayList(currentOrder.getOrderItems());
         cartTableView.setItems(cartItems);
@@ -491,6 +477,7 @@ public class MainController implements Initializable {
         sb.append("=== ข้อมูลออเดอร์ ===\n");
         sb.append("เลขที่: ").append(currentOrder.getOrderId()).append("\n");
         sb.append("วันที่: ").append(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))).append("\n");
+        sb.append("เวลา: ").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))).append("\n");
         sb.append("ประเภท: ").append(currentOrder.isDineIn() ? "ทานที่ร้าน" : "ซื้อกลับ").append("\n");
 
         // ข้อมูลสมาชิก
@@ -527,11 +514,10 @@ public class MainController implements Initializable {
                 double freePizzaPrice = currentOrder.getOrderItems().stream()
                         .filter(item -> item.getItem().getName().equalsIgnoreCase("พิซซ่าเรดฮาวายเอี้ยน"))
                         .mapToDouble(item -> item.getItem().getPrice())
-                        .findFirst()          // เอาเฉพาะตัวแรกที่เจอ
-                        .orElse(0.0);         // ถ้าไม่เจอให้เป็น 0
+                        .findFirst()
+                        .orElse(0.0);
                 originalTotal -= freePizzaPrice;
             }
-
 
             sb.append("\n=== สรุปราคา ===\n");
             sb.append("ราคารวม : ").append(String.format("%.2f บาท", originalTotal)).append("\n");
@@ -552,7 +538,6 @@ public class MainController implements Initializable {
                                 .append(" บาท\n"));
             }
 
-
             sb.append("ราคาสุทธิ : ").append(String.format("%.2f บาท", finalPrice )).append("\n");
 
         }
@@ -560,9 +545,8 @@ public class MainController implements Initializable {
         return sb.toString();
     }
 
-    /**
-     * อัพเดทสถานะปุ่ม
-     */
+
+    // อัพเดทสถานะปุ่ม
     private void updateButtonStates() {
         boolean hasItems = !currentOrder.isEmpty();
         boolean hasSelectedCartItem = cartTableView.getSelectionModel().getSelectedItem() != null;
@@ -574,9 +558,8 @@ public class MainController implements Initializable {
         checkoutButton.setDisable(!hasItems);
     }
 
-    /**
-     * แสดง Alert
-     */
+
+     // แสดง Alert
     private void showAlert(String message, String title) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle(title);
@@ -586,7 +569,6 @@ public class MainController implements Initializable {
     }
 
     // === Selection Handlers ===
-
     @FXML
     private void handleItemSelection() {
         updateButtonStates();
@@ -597,9 +579,8 @@ public class MainController implements Initializable {
         updateButtonStates();
     }
 
-    /**
-     * รีเฟรชข้อมูลหลังสมัครสมาชิกใหม่
-     */
+
+    // รีเฟรชข้อมูลหลังสมัครสมาชิกใหม่
     public void refreshMemberData() {
         if (!PhoneTextField.getText().trim().isEmpty()) {
             searchMemberByPhone();

@@ -14,9 +14,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-/**
- * Controller สำหรับหน้าสมัครสมาชิก
- */
+//Controller สำหรับหน้าสมัครสมาชิก
 public class MemberRegistrationController implements Initializable {
 
     @FXML private TextField nameField;
@@ -39,20 +37,14 @@ public class MemberRegistrationController implements Initializable {
         setupValidation();
     }
 
-    /**
-     * ตั้งค่า Event Handlers
-     */
+     // set Event
     private void setupEventHandlers() {
-        submitButton.setOnAction(e -> handleSubmit());
-        cancelButton.setOnAction(e -> handleCancel());
-
-        // อัพเดทวันหมดอายุเมื่อวันที่สมัครเปลี่ยน
-        joinDatePicker.setOnAction(e -> updateExpireDate());
+        submitButton.setOnAction(event -> handleSubmit());
+        cancelButton.setOnAction(event -> handleCancel());
+        joinDatePicker.setOnAction(event -> updateExpireDate());
     }
 
-    /**
-     * ตั้งค่าค่าเริ่มต้น
-     */
+    // ตั้งค่าค่าเริ่มต้น
     private void setDefaultValues() {
         LocalDate today = LocalDate.now();
         joinDatePicker.setValue(today);
@@ -60,9 +52,7 @@ public class MemberRegistrationController implements Initializable {
         updateExpireDate();
     }
 
-    /**
-     * ตั้งค่า validation
-     */
+     //ตั้งค่า validation
     private void setupValidation() {
         // เพิ่ม listeners สำหรับ real-time validation
         nameField.textProperty().addListener((obs, oldVal, newVal) -> clearError());
@@ -71,9 +61,9 @@ public class MemberRegistrationController implements Initializable {
         joinDatePicker.valueProperty().addListener((obs, oldVal, newVal) -> clearError());
     }
 
-    /**
-     * อัพเดทวันหมดอายุ
-     */
+
+    // อัพเดทวันหมดอายุ
+
     private void updateExpireDate() {
         LocalDate joinDate = joinDatePicker.getValue();
         if (joinDate != null) {
@@ -83,9 +73,7 @@ public class MemberRegistrationController implements Initializable {
         }
     }
 
-    /**
-     * ตรวจสอบความถูกต้องของข้อมูล
-     */
+    //ตรวจสอบความถูกต้องของข้อมูล
     private boolean validateForm() {
         // ตรวจสอบชื่อ
         if (nameField.getText() == null || nameField.getText().trim().isEmpty()) {
@@ -165,9 +153,8 @@ public class MemberRegistrationController implements Initializable {
         return true;
     }
 
-    /**
-     * จัดการการกดปุ่มสมัคร
-     */
+
+    // จัดการการกดปุ่มสมัคร
     private void handleSubmit() {
         if (!validateForm()) {
             return;
@@ -179,13 +166,8 @@ public class MemberRegistrationController implements Initializable {
             String phone = phoneField.getText().replaceAll("[^0-9]", ""); // เก็บเฉพาะตัวเลข
             LocalDate birthDate = birthDatePicker.getValue();
             LocalDate joinDate = joinDatePicker.getValue();
-
-            // สร้างสมาชิกใหม่
             Member newMember = dataManager.addMember(name, phone, birthDate, joinDate);
 
-
-
-            // แสดงข้อความยืนยัน
             Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
             successAlert.setTitle("สมัครสมาชิกสำเร็จ");
             successAlert.setHeaderText("ยินดีต้อนรับสมาชิกใหม่!");
@@ -200,7 +182,6 @@ public class MemberRegistrationController implements Initializable {
             ));
             successAlert.showAndWait();
 
-            // ปิดหน้าต่าง
             closeWindow();
 
         } catch (Exception e) {
@@ -209,9 +190,9 @@ public class MemberRegistrationController implements Initializable {
         }
     }
 
-    /**
-     * จัดการการกดปุ่มยกเลิก
-     */
+
+     //จัดการการกดปุ่มยกเลิก
+
     private void handleCancel() {
         // ตรวจสอบว่ามีการกรอกข้อมูลแล้วหรือไม่
         boolean hasData = !nameField.getText().trim().isEmpty() ||
@@ -236,9 +217,7 @@ public class MemberRegistrationController implements Initializable {
 
     // === Helper Methods ===
 
-    /**
-     * แสดงข้อความ error
-     */
+    //แสดงข้อความ error
     private void showError(String message) {
         if (errorLabel != null) {
             errorLabel.setText(message);
@@ -246,26 +225,19 @@ public class MemberRegistrationController implements Initializable {
         }
     }
 
-    /**
-     * ล้างข้อความ error
-     */
     private void clearError() {
         if (errorLabel != null) {
             errorLabel.setVisible(false);
         }
     }
 
-    /**
-     * ปิดหน้าต่าง
-     */
     private void closeWindow() {
         Stage stage = (Stage) submitButton.getScene().getWindow();
         stage.close();
     }
 
-    /**
-     * จัดรูปแบบเบอร์โทรศัพท์สำหรับแสดงผล
-     */
+
+    // จัดรูปแบบเบอร์โทรศัพท์สำหรับแสดงผล
     private String formatPhoneNumber(String phone) {
         if (phone.length() == 10) {
             return phone.substring(0, 3) + "-" + phone.substring(3, 6) + "-" + phone.substring(6);
@@ -277,42 +249,40 @@ public class MemberRegistrationController implements Initializable {
 
     // === Member Helper Methods (เพื่อแก้ปัญหา method ที่หาไม่เจอใน Member class) ===
 
-    /**
-     * ได้ ID ของสมาชิก
-     */
+
+     // ได้ ID ของสมาชิก
     private String getMemberId(Member member) {
         try {
             return (String) member.getClass().getMethod("getMemberId").invoke(member);
         } catch (Exception e) {
-            return "N/A"; // fallback value
+            return "N/A";
         }
     }
 
-    /**
-     * ได้ชื่อของสมาชิก
-     */
+
+    // ได้ชื่อของสมาชิก
+
     private String getMemberName(Member member) {
         try {
             return (String) member.getClass().getMethod("getName").invoke(member);
         } catch (Exception e) {
-            return "N/A"; // fallback value
+            return "N/A";
         }
     }
 
-    /**
-     * ได้เบอร์โทรของสมาชิก
-     */
+
+    // ได้เบอร์โทรของสมาชิก
     private String getMemberPhone(Member member) {
         try {
             return (String) member.getClass().getMethod("getPhone").invoke(member);
         } catch (Exception e) {
-            return "N/A"; // fallback value
+            return "N/A";
         }
     }
 
-    /**
-     * ได้วันหมดอายุของสมาชิก
-     */
+
+     //ได้วันหมดอายุของสมาชิก
+
     private LocalDate getMemberExpireDate(Member member) {
         try {
             return (LocalDate) member.getClass().getMethod("getExpireDate").invoke(member);
@@ -322,10 +292,8 @@ public class MemberRegistrationController implements Initializable {
     }
 
     // === Setter ===
+    // ตั้งค่า MainController สำหรับ callback
 
-    /**
-     * ตั้งค่า MainController สำหรับ callback
-     */
     public void setMainController(MainController mainController) {
         this.mainController = mainController;
     }
